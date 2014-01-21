@@ -4,12 +4,18 @@ import json
 import httplib
 import sqlite3 
 import sys
+import smtplib
 
 ### Credentials are saved in .json configuration file.  Obtain your credentials from dev.twitter.com.  
 a = open('credentials.json','r')
 f = json.load(a)
+email = f['email']
+password = f['password']
+smtp_server = f['smtp_server']
+phone = f['phone_number']
+carrier = f['carrier']
 
-### Initialize the API
+### Initialize the API.  
 api = TwitterAPI(f['consumer_key'], f['consumer_secret'], f['access_token'], f['access_token_secret'])
 
 ### Create sqlite3 database
@@ -25,7 +31,7 @@ wordlist = ["Me abused depressed", "me hurt depressed", "feel hopeless depressed
 
 ### Looks for redflag phrases and dumps them in db and txt format
 for tweet in stream.get_iterator():
-    try: 
+    try:
         name = tweet['user']['name'].encode("utf-8", errors='ignore')
         screen_name = tweet['user']['screen_name'].encode("utf-8", errors='ignore')
         tweet_text = tweet['text'].encode("utf-8", errors='ignore')
@@ -88,7 +94,24 @@ for tweet in stream.get_iterator():
                     con.commit()
                 except:
                     print "Writing to db failed"
-                break    
+                   
+            
+            ### 5. Send a text message (using a carrier's email-to-SMS address)
+                try:
+                    sender = 'Twitter Suicide Watch'
+                    receiver = phone + carrier  
+                    message = """From: Twitter Suicide Watch             
+                    \n
+                    \n
+                    Screen Name: """ + screen_name +"\n" + "Tweet: " + tweet_text + "\n"
+                    smtpObj = smtplib.SMTP(smtp_server, 25)
+                    smtpObj.starttls()
+                    smtpObj.login(email, password)
+                    smtpObj.sendmail(sender, receiver, message)         
+                    smtpObj.quit()
+                    print "Successfully sent email"
+                except:
+                    print "Couldn't send email"               
     except:
         print "Waiting for tweets"
     print ""
