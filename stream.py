@@ -16,13 +16,13 @@ con = sqlite3.connect('redflags_stream.db')
 con.text_factory = str
 cur = con.cursor()  
 
-### Access the stream.  Filter by location.  Current location is New York City.  Wordlist is list of concerning words. 
+### Access the stream.  Filter by location.  Current location is New York City. 
 stream = api.request('statuses/filter',{'language':'en','locations':'-74,40,-73,41'})
  
 ### Wordlist is from Argyle, Trenton et al. "Tracking Suicide Risk Factors Through Twitter in the US."  Crisis 2014; Vol. 35(1):51–59.
 wordlist = ["Me abused depressed", "me hurt depressed", "feel hopeless depressed", "feel alone depressed", "I feel helpless", "I feel worthless", "I feel sad", "I feel empty", "I feel anxious", "sleeping &quot;a lot&quot; lately", "I feel irritable", "I feel restless", "depressed alcohol", "sertraline", "zoloft", "prozac", "pills depressed", "suicide once more", "me abused suicide", "pain suicide", "I&#039;ve tried suicide before", "mom suicide tried", "sister suicide tried", "brother suicide tried", "friend suicide", "suicide attempted sister", "suicide thought about before", "thought suicide before", "had thoughts suicide", "had thoughts killing myself", "used thoughts suicide", "once thought suicide", "past thoughts suicide", "multiple thought suicide", "stop cutting myself", "I&#039;m being bullied", "I&#039;ve been cyber bullied", "feel bullied I&#039;m", "stop bullying me", "keeps bullying me", "always getting bullied", "gun suicide", "shooting range went", "gun range my", "I was diagnosed schizophrenia", "been diagnosed anorexia", "diagnosed bulimia", "I diagnosed OCD", "I diagnosed bipolar", "I diagnosed PTSD", "diagnosed borderline personality disorder", "diagnosed panic disorder", "diagnosed social anxiety disorder", "dad fight again", "parents fight again", "I impulsive"]
 
-### Looks for redflag phrases and dumps them in .json format
+### Looks for redflag phrases and dumps them in db and txt format
 for tweet in stream.get_iterator():
     try: 
         name = tweet['user']['name'].encode("utf-8", errors='ignore')
