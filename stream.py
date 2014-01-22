@@ -42,8 +42,9 @@ for tweet in stream.get_iterator():
         print "Screename: " + screen_name
         print tweet_text
         
-        for i in wordlist:
-            if i in tweet_text:
+        for i in wordlist:           
+            words = i.split()
+            if all( x in tweet_text for x in words):
             ### Tweet has been flagged.
             ### 1.  Reverse Geocode
                 try:
@@ -63,7 +64,7 @@ for tweet in stream.get_iterator():
                     r = api.request('statuses/user_timeline', {'screen_name':screen_name,'count':'500'})
                     word_count = 0
                     for item in r.get_iterator():
-                        for i in wordlist:
+                        for i in words:
                             if i in item['text']:
                                 word_count += 1                            
                         followers = int(item['user']['followers_count'])
